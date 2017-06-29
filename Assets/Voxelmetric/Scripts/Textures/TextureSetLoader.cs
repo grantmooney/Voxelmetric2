@@ -26,9 +26,9 @@ public class TextureSetLoader: MonoBehaviour
                 var openIndex = textureName.IndexOf('[');
                 if (openIndex > 0 && openIndex < textureName.Length - 2 && textureName.IndexOf(']') == textureName.Length - 1)
                 {
-                    var dir = textureName.Substring(openIndex + 1, textureName.Length - (openIndex + 2));
+                    // TODO: Direction-based texture naming, like this:
+                    // var dir = textureName.Substring(openIndex + 1, textureName.Length - (openIndex + 2));
                     rootTextureName = textureName.Substring(0, openIndex);
-                    // Debug.Log(openIndex + ", " + dir + ", " + rootTextureName);
                 }
                 TextureSet tex;
                 if (textureSets.ContainsKey(rootTextureName))
@@ -47,15 +47,16 @@ public class TextureSetLoader: MonoBehaviour
 
         tilesheet = packedTextures;
         material.mainTexture = packedTextures;
-
-        Debug.Log(string.Format("Voxelmetric Texture Set Loader loaded {0} textures into {1} texture sets.", rects.Length, textureSets.Keys.Count));
+        #if UNITY_EDITOR
+            Debug.Log(string.Format("Voxelmetric Texture Set Loader loaded {0} textures into {1} texture sets.", rects.Length, textureSets.Keys.Count));
+        #endif
     }
 
     public virtual void AddTexture(TextureSet textureSet)
     {
         if (textureSets.ContainsKey(textureSet.name))
         {
-            Debug.LogError("TEXTURE ALREADY EXISTS WITH NAME: "+textureSet.name);
+            Debug.LogError("TEXTURE ALREADY EXISTS WITH NAME: " + textureSet.name);
         }
         else
         {
@@ -67,7 +68,9 @@ public class TextureSetLoader: MonoBehaviour
     {
         if (!textureSets.ContainsKey(name))
         {
-            Debug.LogError("There is no loaded texture by the name " + name);
+            #if UNITY_EDITOR
+                Debug.LogError("There is no loaded texture by the name " + name);
+            #endif
             return null;
         }
 
