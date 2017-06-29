@@ -39,6 +39,7 @@ public class Voxelmetric : MonoBehaviour {
     public struct Settings
     {
         public bool networking;
+        public bool threading;
     }
 
     [SerializeField]
