@@ -6,7 +6,7 @@ public class Cube2dChunkFiller : ChunkFiller
     public string seed;
 
     public TerrainLayer[] layers;
-    private Dictionary<Pos, Block[,]> stored = new Dictionary<Pos, Block[,]>();
+    private readonly Dictionary<Pos, Block[,]> stored = new Dictionary<Pos, Block[,]>();
     private int chunkSize;
 
     public int minChunkY = -32;
@@ -31,10 +31,10 @@ public class Cube2dChunkFiller : ChunkFiller
     public override void FillChunk(Chunk chunk)
     {
         if (chunkSize == 0) {
-            chunkSize = chunk.chunkSize;
+            chunkSize = chunk.ChunkSize;
         }
 
-        var pos = chunk.pos;
+        var pos = chunk.Pos;
         var chunk2d = (Cube2dChunk)chunk;
 
         Block[,] storedValuesForChunk;
@@ -46,15 +46,15 @@ public class Cube2dChunkFiller : ChunkFiller
             return;
         }
 
-        for (pos.y = minChunkY; pos.y <= maxChunkY; pos.y += chunk.chunkSize)
+        for (pos.y = minChunkY; pos.y <= maxChunkY; pos.y += chunk.ChunkSize)
         {
-            stored.Add(pos, new Block[chunk.chunkSize, chunk.chunkSize]);
+            stored.Add(pos, new Block[chunk.ChunkSize, chunk.ChunkSize]);
         }
 
-        FillChunkColumn(pos, chunk.chunkSize);
+        FillChunkColumn(pos, chunk.ChunkSize);
 
-        chunk2d.blocks = stored[chunk2d.pos];
-        stored.Remove(chunk2d.pos);
+        chunk2d.blocks = stored[chunk2d.Pos];
+        stored.Remove(chunk2d.Pos);
     }
 
     private void FillChunkColumn(Pos columnPos, int chunkSize)

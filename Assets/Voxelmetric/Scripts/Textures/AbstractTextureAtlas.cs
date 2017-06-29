@@ -3,27 +3,27 @@ using System.Collections.Generic;
 
 public abstract class TextureAtlas
 {
-    protected Texture2D _texture;
+    protected Texture2D texture;
 
-    public int width
+    public int Width
     {
         get
         {
-            return _texture.width;
+            return texture.width;
         }
     }
 
-    public int height
+    public int Height
     {
         get
         {
-            return _texture.height;
+            return texture.height;
         }
     }
 
     public static explicit operator Texture2D(TextureAtlas d)
     {
-        return d._texture;
+        return d.texture;
     }
 
     public abstract Rect GetTextureRect(string name);

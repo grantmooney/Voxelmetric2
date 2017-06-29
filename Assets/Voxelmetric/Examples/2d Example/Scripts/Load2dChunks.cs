@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Load2dChunks : LoadChunks
 {
     private Pos objectPos;
     
     Pos[] chunkPositions;
-    
-    List<Pos> chunksToRender = new List<Pos>();
-    List<Pos> chunksToGenerate = new List<Pos>();
 
-    
+    readonly List<Pos> chunksToRender = new List<Pos>();
+    readonly List<Pos> chunksToGenerate = new List<Pos>();
+
+
 
     void Start()
     {
@@ -86,10 +87,10 @@ public class Load2dChunks : LoadChunks
         var chunksToDelete = new List<Pos>();
         foreach (var chunk in chunks.GetChunks())
         {
-            var xd = posX - chunk.pos.x;
+            var xd = posX - chunk.Pos.x;
             if ((xd * xd) > distanceToDeleteInUnitsSquared)
             {
-                chunksToDelete.Add(chunk.pos);
+                chunksToDelete.Add(chunk.Pos);
             }
         }
 
@@ -128,7 +129,7 @@ public class Load2dChunks : LoadChunks
                 }
                 return true;
             }
-            else if (!newChunk.rendered)
+            else if (!newChunk.Rendered)
             {
                 for (int y = minChunkY; y <= maxChunkY; y += chunkSize)
                 {

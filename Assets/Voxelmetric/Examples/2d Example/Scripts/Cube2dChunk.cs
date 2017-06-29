@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Cube2dChunk : Chunk
 {
@@ -14,14 +16,14 @@ public class Cube2dChunk : Chunk
     {
         Utils.ProfileCall(() =>
         {
-            pos = position;
-            transform.position = pos;
+            Pos = position;
+            transform.position = Pos;
         }, "Set position");
 
-        this.chunkController = chunkController;
+        this.ChunkController = chunkController;
         Utils.ProfileCall(() =>
         {
-            blocks = new Block[chunkSize, chunkSize];
+            blocks = new Block[ChunkSize, ChunkSize];
         }, "Create blocks array");
 
         Utils.ProfileCall(() =>
@@ -61,7 +63,7 @@ public class Cube2dChunk : Chunk
         if (col.sharedMesh != null) col.sharedMesh.Clear();
         blocks = new Block[0, 0];
         filter.mesh = null;
-        rendered = false;
+        Rendered = false;
     }
 
     public override void Render()
@@ -69,14 +71,14 @@ public class Cube2dChunk : Chunk
         if (rendering) return;
         rendering = true;
 
-        if (!rendered)
+        if (!Rendered)
         {
             CreateChunkNeighbors();
         }
 
         // Set the rendered flag to true even though the mesh isn't rendered yet because all
         // the work for it is done and does not need to be called again.
-        rendered = true;
+        Rendered = true;
 
         //ThreadPool.QueueUserWorkItem(new WaitCallback(CreateChunkMeshDelegate), meshData);
         CreateChunkMesh(meshData);
@@ -111,7 +113,7 @@ public class Cube2dChunk : Chunk
             {
                 if (dir != Direction.north && dir != Direction.south)
                 {
-                    chunkController.CreateChunk(pos + (chunkController.chunkSize * (Pos)dir));
+                    ChunkController.CreateChunk(Pos + (ChunkController.chunkSize * (Pos)dir));
                 }
             }
         }, "Create neighbors");
@@ -135,7 +137,7 @@ public class Cube2dChunk : Chunk
             {
                 for (int y = 0; y < blocks.GetLength(1); y++)
                 {
-                    blocks[x, y].GetBlockType(chunkController.vm).Render(this, new Pos(x, y) + pos, blocks[x, y], meshData);
+                    blocks[x, y].GetBlockType(ChunkController.vm).Render(this, new Pos(x, y) + Pos, blocks[x, y], meshData);
                 }
             }
 
@@ -176,16 +178,16 @@ public class Cube2dChunk : Chunk
     /// <param name="blockPos">Position</param>
     public override Block GetBlock(Pos blockPos)
     {
-        if (blockPos.x > pos.x + chunkSize - 1 || blockPos.y > pos.y + chunkSize - 1 ||
-            blockPos.z > pos.z + chunkSize - 1 || blockPos.x < pos.x ||
-            blockPos.y < pos.y || blockPos.z < pos.z)
+        if (blockPos.x > Pos.x + ChunkSize - 1 || blockPos.y > Pos.y + ChunkSize - 1 ||
+            blockPos.z > Pos.z + ChunkSize - 1 || blockPos.x < Pos.x ||
+            blockPos.y < Pos.y || blockPos.z < Pos.z)
         {
-            return chunkController.GetBlock(blockPos);
+            return ChunkController.GetBlock(blockPos);
         }
 
         return blocks[
-            blockPos.x - pos.x,
-            blockPos.y - pos.y
+            blockPos.x - Pos.x,
+            blockPos.y - Pos.y
         ];
     }
 
@@ -194,17 +196,28 @@ public class Cube2dChunk : Chunk
     /// </summary>
     /// <param name="newBlock">The block to place at the target location</param>
     /// <param name="blockPos">position to place the new block</param>
+    /// <param name="updateRender">todo: describe updateRender parameter on SetBlock</param>
     /// <returns>Returns the block that was replaced</returns>
-    public override Block SetBlock(Block newBlock, Pos blockPos)
+    public override Block SetBlock(Block newBlock, Pos blockPos, bool updateRender = true)
     {
-        var oldBlock = GetBlock(pos);
-        oldBlock.GetBlockType(chunkController.vm).OnDestroy(this, pos, oldBlock, 0);
+        var oldBlock = GetBlock(Pos);
+        oldBlock.GetBlockType(ChunkController.vm).OnDestroy(this, Pos, oldBlock, 0);
 
         blocks[
-            blockPos.x - pos.x,
-            blockPos.y - pos.y
-        ] = newBlock.GetBlockType(chunkController.vm).OnCreate(this, pos, newBlock); ;
+            blockPos.x - Pos.x,
+            blockPos.y - Pos.y
+        ] = newBlock.GetBlockType(ChunkController.vm).OnCreate(this, Pos, newBlock);
+
+        if (updateRender) RenderSoon();
 
         return oldBlock;
     }
+
+    #region Save and load
+    public override void AddUnsavedBlock(Pos pos) { }
+    public override void ClearUnsavedBlocks() { }
+    public override bool HasUnsavedBlocks() { throw new NotImplementedException(); }
+    public override void DeserializeChunk(List<byte> data) { }
+    public override List<byte> SerializeChunk(byte storeMode) { throw new NotImplementedException(); }
+    #endregion
 }

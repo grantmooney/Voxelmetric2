@@ -6,15 +6,14 @@ public class TextureSetLoader: MonoBehaviour
     public string pathToTextureResources = "textures";
     public Material material;
     [HideInInspector]
-    public Texture2D tilesheet;
+    public TextureAtlas mainAtlas;
 
     protected Dictionary<string, TextureSet> textureSets = new Dictionary<string, TextureSet>();
 
     public virtual void LoadTextures(Voxelmetric vm)
     {
         var resourceTextures = Resources.LoadAll<Texture2D>(pathToTextureResources);
-        var packedTextures = new Texture2D(64, 64) { filterMode = FilterMode.Point };
-        var rects = packedTextures.PackTextures(resourceTextures, 0, 8192, false);
+        var atlas = new ImmutableTextureAtlas(resourceTextures, 8192);
 
         for (int i = 0; i < resourceTextures.Length; i++)
         {
@@ -34,21 +33,22 @@ public class TextureSetLoader: MonoBehaviour
                 if (textureSets.ContainsKey(rootTextureName))
                 {
                     tex = textureSets[rootTextureName];
-                    tex.AddTexture(rects[i]);
+                    tex.AddTexture(atlas.GetTextureRect(rootTextureName)); ;
                 }
                 else
                 {
                     tex = new TextureSet(rootTextureName);
-                    tex.AddTexture(rects[i]);
+                    tex.AddTexture(atlas.GetTextureRect(rootTextureName));
                     AddTexture(tex);
                 }
             }
         }
 
-        tilesheet = packedTextures;
-        material.mainTexture = packedTextures;
+
+        mainAtlas = atlas;
+        material.mainTexture = (Texture2D)atlas;
         #if UNITY_EDITOR
-            Debug.Log(string.Format("Voxelmetric Texture Set Loader loaded {0} textures into {1} texture sets.", rects.Length, textureSets.Keys.Count));
+            Debug.Log(string.Format("Voxelmetric Texture Set Loader loaded {0} textures into {1} texture sets.", resourceTextures.Length, textureSets.Keys.Count));
         #endif
     }
 

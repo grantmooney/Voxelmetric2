@@ -56,7 +56,7 @@ public class ChunkDictController : ChunkController {
     public override void Destroy(Chunk chunk)
     {
         chunk.Clear();
-        chunks.Remove(chunk.pos);
+        chunks.Remove(chunk.Pos);
         chunkPool.Add(chunk);
     }
 
@@ -92,7 +92,7 @@ public class ChunkDictController : ChunkController {
 
     public override void SetBlock(Pos blockPos, Block block)
     {
-        Chunk chunk = GetChunk(blockPos);
+        var chunk = GetChunk(blockPos);
 
         if (chunk != null)
         {

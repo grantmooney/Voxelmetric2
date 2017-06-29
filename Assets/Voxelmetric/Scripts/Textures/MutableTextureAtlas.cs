@@ -4,29 +4,31 @@ using System;
 
 public class MutableTextureAtlas : TextureAtlas
 {
-    readonly int _texSize;
-    int _currentX;
-    int _currentY;
+    readonly int texSize;
+    int currentX;
+    int currentY;
     readonly Vector2 normalisedTexSize;
     readonly Rect atlasRect;
-    Dictionary<string, Rect> _textureRects = new Dictionary<string, Rect>();
+    readonly Dictionary<string, Rect> textureRects = new Dictionary<string, Rect>();
 
     public MutableTextureAtlas(int textureSize, int atlasSize, TextureFormat format)
     {
-        _texSize = textureSize;
-        _texture = new Texture2D(atlasSize, atlasSize, format, false);
-        _texture.filterMode = FilterMode.Point;
+        texSize = textureSize;
+        texture = new Texture2D(atlasSize, atlasSize, format, false)
+        {
+            filterMode = FilterMode.Point
+        };
 
         atlasRect = new Rect(0, 0, atlasSize, atlasSize);
-        float normalisedWidth = textureSize / (float)atlasSize;
+        var normalisedWidth = textureSize / (float)atlasSize;
         normalisedTexSize = new Vector2(normalisedWidth, normalisedWidth);
     }
 
     public Rect ReserveSpace(out int xPos, out int yPos)
     {
-        xPos = _currentX;
-        yPos = _currentY;
-        Vector2 uvPoint = Rect.PointToNormalized(atlasRect, new Vector2(xPos, yPos));
+        xPos = currentX;
+        yPos = currentY;
+        var uvPoint = Rect.PointToNormalized(atlasRect, new Vector2(xPos, yPos));
         MoveNext();
         return new Rect(uvPoint, normalisedTexSize);
     }
@@ -36,48 +38,48 @@ public class MutableTextureAtlas : TextureAtlas
         if (tex == null)
             throw new System.ArgumentNullException();
 
-        if (tex.width != _texSize || tex.height != _texSize)
+        if (tex.width != texSize || tex.height != texSize)
         {
-            TextureScale.Point(tex, _texSize, _texSize);
+            TextureScale.Point(tex, texSize, texSize);
             tex.Apply();
         }
-        _texture.SetPixels(xPos, yPos, _texSize, _texSize, tex.GetPixels());
+        texture.SetPixels(xPos, yPos, texSize, texSize, tex.GetPixels());
         if (updateTextureImmediate)
         {
-            _texture.Apply();
+            texture.Apply();
         }
 
-        Vector2 uvPoint = Rect.PointToNormalized(atlasRect, new Vector2(xPos, yPos));
-        _textureRects[tex.name] = new Rect(uvPoint, normalisedTexSize);
-        return _textureRects[tex.name];
+        var uvPoint = Rect.PointToNormalized(atlasRect, new Vector2(xPos, yPos));
+        textureRects[tex.name] = new Rect(uvPoint, normalisedTexSize);
+        return textureRects[tex.name];
     }
 
     public void Fill(Color color)
     {
-        Color[] colors = _texture.GetPixels();
+        var colors = texture.GetPixels();
         for (int i = 0; i < colors.Length; i++)
         {
             colors[i] = color;
         }
-        _texture.SetPixels(colors);
-        _texture.Apply();
+        texture.SetPixels(colors);
+        texture.Apply();
 
     }
 
     public Rect AddTexture(Texture2D tex, bool updateTextureImmediate = true)
     {
-        int targetX = _currentX;
-        int targetY = _currentY;
-        bool moveNext = true;
-        if (_textureRects.ContainsKey(tex.name))
+        var targetX = currentX;
+        var targetY = currentY;
+        var moveNext = true;
+        if (textureRects.ContainsKey(tex.name))
         {
-            targetX = (int)_textureRects[tex.name].x;
-            targetY = (int)_textureRects[tex.name].y;
+            targetX = (int)textureRects[tex.name].x;
+            targetY = (int)textureRects[tex.name].y;
             moveNext = false;
         }
 
 
-        Rect result = AddTexture(tex, targetX, targetY, updateTextureImmediate);
+        var result = AddTexture(tex, targetX, targetY, updateTextureImmediate);
         if (moveNext)
         {
             MoveNext();
@@ -87,17 +89,17 @@ public class MutableTextureAtlas : TextureAtlas
 
     private void MoveNext()
     {
-        _currentX += _texSize;
-        if (_currentX >= atlasRect.width)
+        currentX += texSize;
+        if (currentX >= atlasRect.width)
         {
-            _currentX = 0;
-            _currentY += _texSize;
+            currentX = 0;
+            currentY += texSize;
         }
     }
 
     public Rect[] AddTextures(params Texture2D[] textures)
     {
-        List<Rect> result = new List<Rect>();
+        var result = new List<Rect>();
 
         foreach (Texture2D tex in textures)
         {
@@ -107,23 +109,23 @@ public class MutableTextureAtlas : TextureAtlas
             result.Add(AddTexture(tex, false));
 
         }
-        _texture.Apply();
+        texture.Apply();
         return result.ToArray();
     }
 
     public override Rect GetTextureRect(string name)
     {
-        if (!_textureRects.ContainsKey(name))
+        if (!textureRects.ContainsKey(name))
         {
             Debug.LogError("There is no loaded texture by the name " + name);
             return new Rect();
         }
 
-        return _textureRects[name];
+        return textureRects[name];
     }
 
     public override List<String> GetTextureNames()
     {
-        return new List<String>(_textureRects.Keys);
+        return new List<String>(textureRects.Keys);
     }
 }

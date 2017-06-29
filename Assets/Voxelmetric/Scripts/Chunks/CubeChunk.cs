@@ -1,35 +1,32 @@
 ﻿using UnityEngine;
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/CubeChunk.cs
-=======
 using System;
 using System.Threading;
 using System.Collections.Generic;
->>>>>>> dev:Assets/Voxelmetric/Chunks/CubeChunk.cs
 
 public class CubeChunk : Chunk {
 
     public Block[,,] blocks;
 
-    protected MeshFilter _filter;
-    protected MeshCollider _col;
+    protected MeshFilter filter;
+    protected MeshCollider col;
 
-    protected bool _rendering;
-    protected bool _meshDataReady;
+    protected bool rendering;
+    protected bool meshDataReady;
 
     public override void VmStart(Pos position, ChunkController chunkController)
     {
-        pos = position;
+        Pos = position;
         transform.position = position;
-        this.chunkController = chunkController;
-        vm = chunkController.vm;
+        this.ChunkController = chunkController;
+        Vm = chunkController.vm;
 
-        blocks = new Block[chunkSize, chunkSize, chunkSize];
-        vm.components.chunkFiller.FillChunk(this);
+        blocks = new Block[ChunkSize, ChunkSize, ChunkSize];
+        Vm.components.chunkFiller.FillChunk(this);
 
-        if (_filter == null)
+        if (filter == null)
         {
-            _col = gameObject.AddComponent<MeshCollider>();
-            _filter = gameObject.AddComponent<MeshFilter>();
+            col = gameObject.AddComponent<MeshCollider>();
+            filter = gameObject.AddComponent<MeshFilter>();
             var renderer = gameObject.AddComponent<MeshRenderer>();
             renderer.material = chunkController.vm.components.textureLoader.material;
         }
@@ -45,63 +42,63 @@ public class CubeChunk : Chunk {
     {
         base.Clear();
 
-        if (_filter.mesh != null) _filter.mesh.Clear();
-        if(_col.sharedMesh!=null) _col.sharedMesh.Clear();
+        if (filter.mesh != null) filter.mesh.Clear();
+        if(col.sharedMesh!=null) col.sharedMesh.Clear();
         blocks = new Block[0,0,0];
     }
 
     public override void LateUpdate()
     {
-        if (renderStale)
+        if (RenderStale)
         {
             Render();
         }
 
-        if (_meshDataReady && vm.settings.threading)
+        if (meshDataReady && Vm.settings.threading)
         {
             Utils.ProfileCall(() =>
             {
-                AssignMesh(_meshData);
+                AssignMesh(meshData);
             }, "Assign mesh");
 
             Utils.ProfileCall(() =>
             {
-                _meshData.Clear();
+                meshData.Clear();
             }, "Clear mesh");
 
-            _rendering = false;
-            _meshDataReady = false;
+            rendering = false;
+            meshDataReady = false;
         }
     }
 
     #region Mesh create and render
     public override void Render()
     {
-        if (_rendering) return;
-        _rendering = true;
-        renderStale = false;
+        if (rendering) return;
+        rendering = true;
+        RenderStale = false;
 
-        if (!rendered)
+        if (!Rendered)
         {
             CreateChunkNeighbors();
         }
 
         // Set the rendered flag to true even though the mesh isn't rendered yet because all
         // the work for it is done and does not need to be called again.
-        rendered = true;
+        Rendered = true;
 
-        if (vm.settings.threading)
+        if (Vm.settings.threading)
         {
-            ThreadPool.QueueUserWorkItem(new WaitCallback(CreateChunkMeshDelegate), _meshData);
+            ThreadPool.QueueUserWorkItem(new WaitCallback(CreateChunkMeshDelegate), meshData);
         }
         else
         {
-            CreateChunkMesh(_meshData);
-            AssignMesh(_meshData);
+            CreateChunkMesh(meshData);
+            AssignMesh(meshData);
 
-            _meshData.Clear();
-            _rendering = false;
-            _meshDataReady = false;
+            meshData.Clear();
+            rendering = false;
+            meshDataReady = false;
         }
     }
 
@@ -113,7 +110,7 @@ public class CubeChunk : Chunk {
             // chunks are filled before this chunk can be rendered
             foreach (var dir in DirectionUtils.Directions)
             {
-                chunkController.CreateChunk(pos + (chunkController.chunkSize * (Pos)dir));
+                ChunkController.CreateChunk(Pos + (ChunkController.chunkSize * (Pos)dir));
             }
         }, "Create neighbors");
     }
@@ -138,13 +135,13 @@ public class CubeChunk : Chunk {
                 {
                     for (int z = 0; z < blocks.GetLength(2); z++)
                     {
-                        blocks[x, y, z].GetBlockType(chunkController.vm).Render(this, new Pos(x, y, z) + pos, blocks[x, y, z], meshData);
+                        blocks[x, y, z].GetBlockType(ChunkController.vm).Render(this, new Pos(x, y, z) + Pos, blocks[x, y, z], meshData);
                     }
                 }
             }
         }
 
-        _meshDataReady = true;
+        meshDataReady = true;
     }
 
     /// <summary>
@@ -153,39 +150,23 @@ public class CubeChunk : Chunk {
     /// <param name="meshData">The meshdata to assign</param>
     protected override void AssignMesh(MeshData meshData)
     {
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/CubeChunk.cs
-        filter.mesh = new Mesh
+
+        var mesh = new Mesh()
         {
             name = "Mesh for " + name,
             vertices = meshData.verts.ToArray(),
             triangles = meshData.tris.ToArray(),
             uv = meshData.uvs.ToArray()
         };
-        
-        col.sharedMesh = new Mesh
+        filter.mesh = mesh;
+
+        mesh = new Mesh()
         {
             name = "Collision mesh for " + name,
-            //mesh.vertices = meshData.colVerts.ToArray();
-            //mesh.triangles = meshData.colTris.ToArray();
             vertices = meshData.verts.ToArray(),
             triangles = meshData.tris.ToArray()
         };
-=======
-        Mesh mesh = new Mesh();
-        mesh.name = "Mesh for " + name;
-        mesh.vertices = meshData.verts.ToArray();
-        mesh.triangles = meshData.tris.ToArray();
-        mesh.uv = meshData.uvs.ToArray();
-
-        _filter.mesh = mesh;
-
-        mesh = new Mesh();
-        mesh.name = "Collision mesh for " + name;
-        mesh.vertices = meshData.verts.ToArray();
-        mesh.triangles = meshData.tris.ToArray();
-
-        _col.sharedMesh = mesh;
->>>>>>> dev:Assets/Voxelmetric/Chunks/CubeChunk.cs
+        col.sharedMesh = mesh;
 
         meshData.Clear();
     }
@@ -198,40 +179,37 @@ public class CubeChunk : Chunk {
     /// <param name="blockPos">Position</param>
     public override Block GetBlock(Pos blockPos)
     {
-        if (blockPos.x > pos.x + chunkSize - 1 || blockPos.y > pos.y + chunkSize - 1 ||
-            blockPos.z > pos.z + chunkSize - 1 || blockPos.x < pos.x ||
-            blockPos.y < pos.y || blockPos.z < pos.z)
+        if (blockPos.x > Pos.x + ChunkSize - 1 || blockPos.y > Pos.y + ChunkSize - 1 ||
+            blockPos.z > Pos.z + ChunkSize - 1 || blockPos.x < Pos.x ||
+            blockPos.y < Pos.y || blockPos.z < Pos.z)
         {
-            return chunkController.GetBlock(blockPos);
+            return ChunkController.GetBlock(blockPos);
         }
 
         return blocks[
-            blockPos.x - pos.x,
-            blockPos.y - pos.y,
-            blockPos.z - pos.z
+            blockPos.x - Pos.x,
+            blockPos.y - Pos.y,
+            blockPos.z - Pos.z
         ];
     }
 
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/CubeChunk.cs
     /// <summary>
     /// Replaces the block at the given location with the newBlock
     /// </summary>
     /// <param name="newBlock">The block to place at the target location</param>
     /// <param name="blockPos">position to place the new block</param>
     /// <returns>Returns the block that was replaced</returns>
-    public override Block SetBlock(Block newBlock, Pos blockPos)
-=======
     public override Block SetBlock(Block newBlock, Pos blockPos, bool updateRender = true)
->>>>>>> dev:Assets/Voxelmetric/Chunks/CubeChunk.cs
+
     {
-        var oldBlock = GetBlock(pos);
-        oldBlock.GetBlockType(chunkController.vm).OnDestroy(this, pos, oldBlock, 0);
+        var oldBlock = GetBlock(Pos);
+        oldBlock.GetBlockType(ChunkController.vm).OnDestroy(this, Pos, oldBlock, 0);
 
         blocks[
-            blockPos.x - pos.x,
-            blockPos.y - pos.y,
-            blockPos.z - pos.z
-        ] = newBlock.GetBlockType(chunkController.vm).OnCreate(this, pos, newBlock);
+            blockPos.x - Pos.x,
+            blockPos.y - Pos.y,
+            blockPos.z - Pos.z
+        ] = newBlock.GetBlockType(ChunkController.vm).OnCreate(this, Pos, newBlock);
 
         if (updateRender) RenderSoon();
 

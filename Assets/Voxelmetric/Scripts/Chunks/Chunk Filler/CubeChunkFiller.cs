@@ -3,7 +3,6 @@ using SimplexNoise;
 
 public class CubeChunkFiller : ChunkFiller
 {
-
     public string seed;
 
     public TerrainLayer[] layers;
@@ -29,9 +28,9 @@ public class CubeChunkFiller : ChunkFiller
 
     public override void FillChunk(Chunk chunk)
     {
-        if (chunkSize == 0) chunkSize = chunk.chunkSize;
+        if (chunkSize == 0) chunkSize = chunk.ChunkSize;
 
-        var pos = chunk.pos;
+        var pos = chunk.Pos;
         var chunk3d = (CubeChunk)chunk;
 
         Block[,,] storedValuesForChunk;
@@ -43,20 +42,24 @@ public class CubeChunkFiller : ChunkFiller
             return;
         }
 
-        for (pos.y = minChunkY; pos.y <= maxChunkY; pos.y += chunk.chunkSize)
+        for (pos.y = minChunkY; pos.y <= maxChunkY; pos.y += chunk.ChunkSize)
         {
-            stored.Add(pos, new Block[chunk.chunkSize, chunk.chunkSize, chunk.chunkSize]);
+            if (stored.ContainsKey(pos))
+            {
+                continue;
+            }
+            stored[pos] = new Block[chunk.ChunkSize, chunk.ChunkSize, chunk.ChunkSize];
         }
 
-        FillChunkColumn(pos, chunk.chunkSize);
+        FillChunkColumn(pos, chunk.ChunkSize);
 
-        chunk3d.blocks = stored[chunk3d.pos];
-        stored.Remove(chunk3d.pos);
+        chunk3d.blocks = stored[chunk3d.Pos];
+        stored.Remove(chunk3d.Pos);
     }
 
     private void FillChunkColumn(Pos columnPos, int chunkSize)
     {
-        Pos pos = columnPos;
+        var pos = columnPos;
 
         for (pos.x = columnPos.x; pos.x < columnPos.x + chunkSize; pos.x++)
         {

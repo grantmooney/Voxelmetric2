@@ -1,25 +1,25 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public abstract class Chunk : MonoBehaviour {
+public abstract class Chunk : MonoBehaviour
+{
+    public Pos Pos { get; protected set; }
+    public ChunkController ChunkController { get; protected set; }
+    public Voxelmetric Vm { get; protected set; }
 
-    public Pos pos { get; protected set; }
-    public ChunkController chunkController { get; protected set; }
-    public Voxelmetric vm { get; protected set; }
+    public int ChunkSize { get { return ChunkController.chunkSize; } }
+    public float BlockSize { get { return ChunkController.blockSize; } }
 
-    public int chunkSize { get { return chunkController.chunkSize; } }
-    public float blockSize { get { return chunkController.blockSize; } }
-
-    protected MeshData _meshData = new MeshData();
+    protected MeshData meshData = new MeshData();
 
     /// <summary>
     /// True if the chunk has been rendered for the first time
     /// </summary>
-    public bool rendered { get; protected set; }
+    public bool Rendered { get; protected set; }
     /// <summary>
     /// True if the contents of the chunk have been modified since last render
     /// </summary>
-    public bool renderStale { get; protected set; }
+    public bool RenderStale { get; protected set; }
     /// <summary>
     /// Used to determine if the chunk has been populated by the chunk filler
     /// </summary>
@@ -30,28 +30,26 @@ public abstract class Chunk : MonoBehaviour {
     /// Keep in mind this could be a new game object or an old one returned
     /// from an object pool.
     /// </summary>
+    /// <param name="position">todo: describe position parameter on VmStart</param>
+    /// <param name="chunkController">todo: describe chunkController parameter on VmStart</param>
     public virtual void VmStart(Pos position, ChunkController chunkController)
     {
-        pos = position;
+        Pos = position;
         transform.position = position;
 
-        this.chunkController = chunkController;
-        vm = chunkController.vm;
+        this.ChunkController = chunkController;
+        Vm = chunkController.vm;
 
-        vm.components.chunkFiller.FillChunk(this);
+        Vm.components.chunkFiller.FillChunk(this);
         gameObject.SetActive(true);
     }
 
-    // TODO: This shouldn't be necessary.
     public virtual void LateUpdate()
     {
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/Chunk.cs
-=======
-        if (renderStale)
+        if (RenderStale)
         {
             Render();
         }
->>>>>>> dev:Assets/Voxelmetric/Chunks/Chunk.cs
     }
 
     /// <summary>
@@ -59,10 +57,10 @@ public abstract class Chunk : MonoBehaviour {
     /// </summary>
     public virtual void Clear()
     {
-        rendered = false;
-        renderStale = false;
+        Rendered = false;
+        RenderStale = false;
         chunkIsFilled = false;
-        _meshData.Clear();
+        meshData.Clear();
         ClearUnsavedBlocks();
     }
 
@@ -71,19 +69,12 @@ public abstract class Chunk : MonoBehaviour {
     /// </summary>
     public virtual void Render()
     {
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/Chunk.cs
+        RenderStale = false;
         CreateChunkMesh(meshData);
         AssignMesh(meshData);
-        
-        meshData.Clear();
-=======
-        renderStale = false;
-        CreateChunkMesh(_meshData);
-        AssignMesh(_meshData);
 
-        _meshData.Clear();
->>>>>>> dev:Assets/Voxelmetric/Chunks/Chunk.cs
-        rendered = true;
+        meshData.Clear();
+        Rendered = true;
     }
 
     /// <summary>
@@ -91,46 +82,27 @@ public abstract class Chunk : MonoBehaviour {
     /// </summary>
     public virtual void RenderSoon()
     {
-        renderStale = true;
+        RenderStale = true;
     }
 
     /// <summary>
     /// Creates a chunk mesh from the blocks the mesh contains. The mesh should use the
     /// chunk's position as it's origin point.
     /// </summary>
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/Chunk.cs
-    /// <param name="meshData">The meshdata to modify</param>
-    protected virtual void CreateChunkMesh(MeshData meshData)
-    {
-    }
-=======
+    /// <param name="meshData">todo: describe meshData parameter on CreateChunkMesh</param>
     protected abstract void CreateChunkMesh(MeshData meshData);
->>>>>>> dev:Assets/Voxelmetric/Chunks/Chunk.cs
 
     /// <summary>
     /// Takes the mesh data passed to it and assigns it to the chunks renderer replacing the original contents
     /// </summary>
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/Chunk.cs
-    /// <param name="meshData">The meshdata to modify</param>
-    protected virtual void AssignMesh(MeshData meshData)
-    {
-    }
-=======
+    /// <param name="meshData">todo: describe meshData parameter on AssignMesh</param>
     protected abstract void AssignMesh(MeshData meshData);
->>>>>>> dev:Assets/Voxelmetric/Chunks/Chunk.cs
 
     /// <summary>
     /// Returns the block at the specified position
     /// </summary>
-<<<<<<< HEAD:Assets/Voxelmetric/Scripts/Chunks/Chunk.cs
-    /// <param name="pos">The position of the target block</param>
-    public virtual Block GetBlock(Pos pos)
-    {
-        return new Block();
-    }
-=======
+    /// <param name="pos">todo: describe pos parameter on GetBlock</param>
     public abstract Block GetBlock(Pos pos);
->>>>>>> dev:Assets/Voxelmetric/Chunks/Chunk.cs
 
     /// <summary>
     /// Replaces the block at the given location with the newBlock, should call OnCreate for the block created and
@@ -138,6 +110,7 @@ public abstract class Chunk : MonoBehaviour {
     /// </summary>
     /// <param name="newBlock">The block to place at the target location</param>
     /// <param name="pos">position to place the new block</param>
+    /// <param name="updateRender">todo: describe updateRender parameter on SetBlock</param>
     /// <returns>Returns the block that was replaced</returns>
     public abstract Block SetBlock(Block newBlock, Pos pos, bool updateRender = true);
 

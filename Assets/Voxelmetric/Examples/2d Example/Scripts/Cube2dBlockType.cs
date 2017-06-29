@@ -16,7 +16,7 @@ public class Cube2dBlockType : BlockType
         {
             if (dir == Direction.north || dir == Direction.south ||  (!chunk.GetBlock(pos + dir).GetBlockType(vm).IsSolid(chunk, pos, block, DirectionUtils.Opposites[dir])))
             {
-                meshData.verts.AddRange(MeshArrays.VertexCubeFaces(pos - chunk.pos, chunk.blockSize, dir));
+                meshData.verts.AddRange(MeshArrays.VertexCubeFaces(pos - chunk.Pos, chunk.BlockSize, dir));
                 meshData.tris.AddRange(MeshArrays.TriCubeFaces(meshData.verts.Count));
                 meshData.uvs.AddRange(MeshArrays.QuadFaceTexture(textureSet.GetTexture(chunk, pos, dir)));
             }

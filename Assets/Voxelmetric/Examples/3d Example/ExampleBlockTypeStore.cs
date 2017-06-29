@@ -1,42 +1,40 @@
-﻿using UnityEngine;
-using System.Collections;
-
-public class ExampleBlockTypeStore: BlockTypeStore
+﻿public class ExampleBlockTypeStore : BlockTypeStore
 {
     public override BlockType[] GetBlockTypes(Voxelmetric vm)
     {
         return new BlockType[] {
-            new CubeBlockType() {
+            new CubeBlockType {
                 blockName = "rock",
                 id = 2,
                 solid = true,
                 canBeWalkedOn = true,
                 canBeWalkedThrough = false,
-                textureName = "rock",
+                textureName = "rock"
             },
-            new CubeBlockType() {
+            new CubeBlockType {
                 blockName = "dirt",
                 id = 3,
                 solid = true,
                 canBeWalkedOn = false,
                 canBeWalkedThrough = false,
-                textureName = "dirt",
+                textureName = "dirt"
             },
-            new CubeBlockType() {
+            new FoliageCubeBlockType {
                 blockName = "grass",
+                textureName = "dirt",
+                foliageTextureName = "grass",
                 id = 4,
                 solid = true,
                 canBeWalkedOn = true,
-                canBeWalkedThrough = true,
-                textureName = "grass",
+                canBeWalkedThrough = true
             },
-            new CubeBlockType() {
+            new CubeBlockType {
                 blockName = "sand",
                 id = 5,
                 solid = true,
                 canBeWalkedOn = true,
                 canBeWalkedThrough = true,
-                textureName = "sand",
+                textureName = "sand"
             }
         };
     }

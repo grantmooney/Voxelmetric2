@@ -1,6 +1,6 @@
-﻿public class Cube2dBlockTypesStore : BlockTypesStore
+﻿public class Cube2dBlockTypeStore : BlockTypeStore
 {
-    public override BlockType[] GetBlockAttrs(Voxelmetric vm)
+    public override BlockType[] GetBlockTypes(Voxelmetric vm)
     {
         return new BlockType[] {
             new Cube2dBlockType {

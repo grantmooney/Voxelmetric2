@@ -113,12 +113,12 @@ public class LoadChunks : MonoBehaviour
         var chunksToDelete = new List<Pos>();
         foreach (var chunk in chunks.GetChunks())
         {
-            var xd = posX - chunk.pos.x;
-            var yd = posZ - chunk.pos.z;
+            var xd = posX - chunk.Pos.x;
+            var yd = posZ - chunk.Pos.z;
 
             if ((xd * xd + yd * yd) > distanceToDeleteInUnitsSquared)
             {
-                chunksToDelete.Add(chunk.pos);
+                chunksToDelete.Add(chunk.Pos);
             }
         }
 
@@ -157,7 +157,7 @@ public class LoadChunks : MonoBehaviour
                     chunksToGenerate.Add(new Pos(newChunkPos.x, y, newChunkPos.z));
                 return true;
             }
-            else if (!newChunk.rendered)
+            else if (!newChunk.Rendered)
             {
                 for (int y = minChunkY; y <= maxChunkY; y += chunkSize)
                     chunksToRender.Add(new Pos(newChunkPos.x, y, newChunkPos.z));
